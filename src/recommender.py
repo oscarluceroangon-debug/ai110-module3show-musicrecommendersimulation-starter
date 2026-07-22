@@ -12,10 +12,10 @@ from dataclasses import dataclass
 #     near-miss still earns most of the points.
 WEIGHTS = {
     # categorical, exact match
-    "genre": 2.0,          # +2.0 for an exact genre match
+    "genre": 1.0,          # EXPERIMENT: halved 2.0 -> 1.0 (was the dominant signal)
     "mood": 1.0,           # +1.0 for an exact mood match
     # numeric, graded by closeness to the user's target
-    "energy": 1.0,         # primary numeric signal (kept strongest)
+    "energy": 2.0,         # EXPERIMENT: doubled 1.0 -> 2.0 (now strongest signal)
     "valence": 0.5,        # secondary: overall positivity / happiness
     "danceability": 0.5,   # secondary: how danceable
     "acousticness": 0.5,   # secondary: acoustic vs produced

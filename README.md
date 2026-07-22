@@ -1,5 +1,5 @@
 # 🎵 Music Recommender Simulation
-
+#Start here
 ## Project Summary
 
 In this project you will build and explain a small music recommender system.
@@ -11,8 +11,8 @@ Your goal is to:
 - Evaluate what your system gets right and wrong
 - Reflect on how this mirrors real world AI recommenders
 
-Replace this paragraph with your own summary of what your version does.
-
+My version takes a listener's preferences like a genre, a mood, and how much energy they want and gives each song a score based on how closely it matches, then returns the top picks. I also ran experiments with edge-case profiles and adjusted the scoring weights to see how easily the rankings can be biased toward one preference.
+#End here
 ---
 
 ## How The System Works
@@ -134,13 +134,59 @@ You can add more tests in `tests/test_recommender.py`.
 ---
 
 ## Experiments You Tried
+================================================================
+1. CONFLICT: energy=0.9 + mood=sad
+  exposes: Mood is dropped silently; scorer just maximizes energy.
+  prefs:   {'mood': 'sad', 'energy': 0.9}
+----------------------------------------------------------------
+    0.99  Storm Runner         genre=rock       mood=intense
+    0.97  Gym Hero             genre=pop        mood=intense
+    0.95  Neon Pulse           genre=edm        mood=euphoric
 
+================================================================
+2. OUT-OF-RANGE: genre=metal + energy=2.0
+  exposes: No clamping -> closeness goes negative for non-matches.
+  prefs:   {'genre': 'metal', 'energy': 2.0}
+----------------------------------------------------------------
+    1.98  Iron Verdict         genre=metal      mood=aggressive
+   -0.05  Neon Pulse           genre=edm        mood=euphoric
+   -0.07  Gym Hero             genre=pop        mood=intense
+
+================================================================
+3. GENRE STEAMROLLER: genre=pop only
+  exposes: Ties at 2.00 broken by CSV order; genre outweighs audio features.
+  prefs:   {'genre': 'pop'}
+----------------------------------------------------------------
+    2.00  Sunrise City         genre=pop        mood=happy
+    2.00  Gym Hero             genre=pop        mood=intense
+    0.00  Midnight Coding      genre=lofi       mood=chill
+
+================================================================
+4. EMPTY PROFILE: no prefs
+  exposes: Everything scores 0.00; file order presented as recommendations.
+  prefs:   {}
+----------------------------------------------------------------
+    0.00  Sunrise City         genre=pop        mood=happy
+    0.00  Midnight Coding      genre=lofi       mood=chill
+    0.00  Storm Runner         genre=rock       mood=intense
+
+================================================================
+5. ALL-ZEROS: anti-recommender
+  exposes: No sanity floor; happily returns the most lifeless tracks.
+  prefs:   {'energy': 0.0, 'valence': 0.0, 'danceability': 0.0, 'acousticness': 0.0}
+----------------------------------------------------------------
+    1.52  Winter Nocturne      genre=classical  mood=melancholy
+    1.23  Spacewalk Thoughts   genre=ambient    mood=chill
+    1.15  Velvet Hours         genre=r&b        mood=romantic
+
+    
 Use this section to document the experiments you ran. For example:
 
 - What happened when you changed the weight on genre from 2.0 to 0.5
 - What happened when you added tempo or valence to the score
 - How did your system behave for different types of users
 
+The edge-case profiles test whether the recommender still behaves sensibly when a user's request is unusual or contradictory like asking for a "sad" mood that isn't in the catalog, or setting an energy target that's out of range. The weight-shift experiment tests how sensitive the rankings are to which preference we treat as most important, by doubling energy and halving genre to see if the top picks change.
 ---
 
 ## Limitations and Risks
@@ -155,6 +201,7 @@ Examples:
 
 You will go deeper on this in your model card.
 
+Some limitations and risks that the system struggles with is requesting songs that aren't in the catalog mood label. For example if a listener who asks for a "sad" song gets zero credit on that request since "sad" isn't one of the catalog's mood labels — the system silently ignores their strongest intent and ranks on energy instead. In our experiment, a "sad but high-energy" profile returned intense rock and EDM tracks, the opposite of what was asked. This means anyone whose words don't exactly match our fixed vocabulary is effectively invisible to the mood and genre parts of the system. Additionally, because our data size is small it doesn't allow for users to get an accurate recommendation. 
 ---
 
 ## Reflection
@@ -168,5 +215,6 @@ Write 1 to 2 paragraphs here about what you learned:
 - about how recommenders turn data into predictions
 - about where bias or unfairness could show up in systems like this
 
+Somethings that I learned from doing this project is finding out how data is used to predicated/recommend users songs. Seeing how they is words into numerical to be able to do this felt weird since I noticed that this leads to many biases or unfairness. For example my data didn't have anything about sad song which made it hard for users to find songs that were sad. However, through trail and error I was able to find ways to remove this bais, but I do believe that there could still be some bais which I haven't found. 
 
 
